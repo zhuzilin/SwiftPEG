@@ -8,8 +8,8 @@ public struct Node: CustomStringConvertible, Equatable {
     // Swift has copy-on-write mechanism on string.
     // So it's fine to have a copy of the full test in every Node.
     let full_text: String
-    let start: String.Index
-    let end: String.Index
+    public let start: String.Index
+    public let end: String.Index
     public var children: [Node] = []
     
     public var expr_name: String { expr.name }
