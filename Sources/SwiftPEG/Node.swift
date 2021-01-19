@@ -11,10 +11,10 @@ public struct Node: CustomStringConvertible, Equatable {
     public let start: String.Index
     public let end: String.Index
     public var children: [Node] = []
-    
-    public var expr_name: String { expr.name }
+
+    public var name: String { expr.name }
     public var text: String { String(full_text[start..<end]) }
-    
+
     public var description: String {
         toString(withName: true)
     }
@@ -22,8 +22,7 @@ public struct Node: CustomStringConvertible, Equatable {
     public func toString(withName: Bool = false) -> String {
         var str: String = ""
         if withName {
-            str += "\(expr_name) = "
-            print(expr_name)
+            str += "\(name) = "
         }
         switch expr.type {
             case .literal:
@@ -59,7 +58,7 @@ public struct Node: CustomStringConvertible, Equatable {
     }
     
     public static func ==(lhs: Node, rhs: Node) -> Bool {
-        if lhs.text != rhs.text || lhs.expr_name != rhs.expr_name ||
+        if lhs.text != rhs.text || lhs.name != rhs.name ||
             lhs.expr.type != rhs.expr.type || lhs.children.count != rhs.children.count {
             return false
         }

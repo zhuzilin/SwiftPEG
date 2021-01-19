@@ -58,8 +58,17 @@ final class swift_pegTests: XCTestCase {
         XCTAssertTrue(node1 == node2)
     }
     
+    func testSimplify() {
+        let node: Node = Grammar(rules: ruleSyntax).parse(for: ruleSyntax, with: "rules")!
+        let simplifiedNode = simplify(for: node)!
+        for child in simplifiedNode.children {
+            XCTAssertTrue(child.name != "")
+        }
+    }
+
     static var allTests = [
         ("BootstrappingGrammar", testBootstrappingGrammar),
         ("Grammar", testGrammar),
+        ("Simplify", testSimplify),
     ]
 }

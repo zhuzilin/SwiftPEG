@@ -7,7 +7,7 @@ class RuleVisitor {
     var lazyReferences: [LazyReference] = []
     // rules = _ rule+
     func visitRules(_ node: Node) -> [String: Expression] {
-        guard node.expr_name == "rules" else {
+        guard node.name == "rules" else {
             return [:]
         }
         let rules: [Expression] = visitOneOrMore(node.children[1])
@@ -27,7 +27,7 @@ class RuleVisitor {
     //
     func visitOneOrMore(_ node: Node) -> [Expression] {
         let transformFunc: (Node) -> Expression?
-        switch node.children[0].expr_name {
+        switch node.children[0].name {
             case "rule":
                 transformFunc = visitRule
             case "or_term":
@@ -50,7 +50,7 @@ class RuleVisitor {
 
     // rule = label equals expression
     func visitRule(_ node: Node) -> Expression? {
-        guard node.expr_name == "rule" else {
+        guard node.name == "rule" else {
             return nil
         }
         let label: String = visitLabel(node.children[0])
@@ -67,7 +67,7 @@ class RuleVisitor {
 
     // label = ~"[a-zA-Z_][a-zA-Z_0-9]*" _
     func visitLabel(_ node: Node) -> String {
-        guard node.expr_name == "label" else {
+        guard node.name == "label" else {
             return ""
         }
         return node.children[0].text
@@ -75,10 +75,10 @@ class RuleVisitor {
 
     // expression = ored / sequence / term
     func visitExpression(_ node: Node) -> Expression? {
-        guard node.expr_name == "expression" else {
+        guard node.name == "expression" else {
             return nil
         }
-        switch node.children[0].expr_name {
+        switch node.children[0].name {
             case "ored":
                 return visitOred(node.children[0])
             case "sequence":
@@ -92,7 +92,7 @@ class RuleVisitor {
     
     // ored = term or_term+
     func visitOred(_ node: Node) -> Expression? {
-        guard node.expr_name == "ored" else {
+        guard node.name == "ored" else {
             return nil
         }
         if let term = visitTerm(node.children[0]) {
@@ -104,7 +104,7 @@ class RuleVisitor {
     
     // sequence = term term+
     func visitSequence(_ node: Node) -> Expression? {
-        guard node.expr_name == "sequence" else {
+        guard node.name == "sequence" else {
             return nil
         }
         if let term = visitTerm(node.children[0]) {
@@ -116,10 +116,10 @@ class RuleVisitor {
 
     // term = not_term / lookahead_term / quantified / atom
     func visitTerm(_ node: Node) -> Expression? {
-        guard node.expr_name == "term" else {
+        guard node.name == "term" else {
             return nil
         }
-        switch node.children[0].expr_name {
+        switch node.children[0].name {
             case "not_term":
                 return visitNotTerm(node.children[0])
             case "lookahead_term":
@@ -135,7 +135,7 @@ class RuleVisitor {
 
     // not_term = "!" term _
     func visitNotTerm(_ node: Node) -> Expression? {
-        guard node.expr_name == "not_term" else {
+        guard node.name == "not_term" else {
             return nil
         }
         if let term = visitTerm(node.children[1]) {
@@ -146,7 +146,7 @@ class RuleVisitor {
     
     // lookahead_term = "&" term _
     func visitLookaheadTerm(_ node: Node) -> Expression? {
-        guard node.expr_name == "lookahead_term" else {
+        guard node.name == "lookahead_term" else {
             return nil
         }
         if let term = visitTerm(node.children[1]) {
@@ -157,7 +157,7 @@ class RuleVisitor {
     
     // or_term = "/" _ term
     func visitOrTerm(_ node: Node) -> Expression? {
-        guard node.expr_name == "or_term" else {
+        guard node.name == "or_term" else {
             return nil
         }
         return visitTerm(node.children[2])
@@ -166,7 +166,7 @@ class RuleVisitor {
     // quantified = atom quantifier
     // quantifier = ~"[*+?]" _
     func visitQuantified(_ node: Node) -> Expression? {
-        guard node.expr_name == "quantified" else {
+        guard node.name == "quantified" else {
             return nil
         }
         if let atom = visitAtom(node.children[0]) {
@@ -187,10 +187,10 @@ class RuleVisitor {
     
     // atom = reference / literal / regex / parenthesized
     func visitAtom(_ node: Node) -> Expression? {
-        guard node.expr_name == "atom" else {
+        guard node.name == "atom" else {
             return nil
         }
-        switch node.children[0].expr_name {
+        switch node.children[0].name {
             case "reference":
                 return visitReference(node.children[0])
             case "literal":
@@ -206,7 +206,7 @@ class RuleVisitor {
     
     // reference = label !equals
     func visitReference(_ node: Node) -> Expression? {
-        guard node.expr_name == "reference" else {
+        guard node.name == "reference" else {
             return nil
         }
         let lazyReference: LazyReference = LazyReference(name: visitLabel(node.children[0]))
@@ -216,7 +216,7 @@ class RuleVisitor {
     
     // literal = spaceless_literal _
     func visitLiteral(_ node: Node) -> Expression? {
-        guard node.expr_name == "literal" else {
+        guard node.name == "literal" else {
             return nil
         }
 
@@ -227,7 +227,7 @@ class RuleVisitor {
     
     // regex = "~" spaceless_literal ~"[ilmsuxa]*"i _
     func visitRegex(_ node: Node) -> Expression? {
-        guard node.expr_name == "regex" else {
+        guard node.name == "regex" else {
             return nil
         }
         // TODO: The second literal should only contain space, add check.

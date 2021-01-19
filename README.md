@@ -83,6 +83,9 @@ let markdownParser: Grammar = Grammar(rules: markdownSyntax)
 let ast: Node = grammar.parse(for: text, with: "doc")
 // Then do what ever you like with the AST
 ...
+// Or your can use the simplified AST which only contains node with named rule
+let simplifiedAst: SimplifiedNode = simplify(for: ast)
+...
 ```
 
 ## API
@@ -101,13 +104,6 @@ public class Grammar {
     public init(rules: String)
     // Return nil if the parsing failed
     public func parse(for text: String, with ruleName: String) -> Node?
-    
-    func expression(from rules: String) -> [String: Expression] {
-        if let tree: Node = ruleGrammar.parse(for: rules, with: "rules") {
-            return RuleVisitor().visitRules(tree)
-        }
-        return [:]
-    }
 }
 ```
 
@@ -119,11 +115,14 @@ public class Grammar {
 public struct Node: CustomStringConvertible, Equatable {
     // The parser node used to parse this node
     public let expr: Expression
-    public var expr_name: String { expr.name }
+    public var name: String { expr.name }
     // The children nodes
     public var children: [Node] = []
     // The matched text of this Node
     public var text: String
+    // The matched range of this Node
+    public let start: String.Index
+    public let end: String.Index
 
     public var description: String {
         toString(withName: true)
@@ -131,6 +130,25 @@ public struct Node: CustomStringConvertible, Equatable {
     public func toString(withName: Bool = false) -> String
 
   	public static func ==(lhs: Node, rhs: Node) -> Bool
+}
+```
+
+### SimplifiedNode
+
+`SimplifiedNode` type has the following interfaces:
+
+```swift
+public struct SimplifiedNode: CustomStringConvertible {
+    public let name: String
+    // The children nodes
+    public var children: [SimplifiedNode] = []
+    // The matched text of this Node
+    public var text: String
+    // The matched range of this Node
+    public let start: String.Index
+    public let end: String.Index
+
+    public var description: String
 }
 ```
 
